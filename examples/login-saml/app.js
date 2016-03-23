@@ -5,25 +5,29 @@
  *  All Rights Reserved
  *  MIT License
  *
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-* software and associated documentation files (the "Software"), to deal in the Software 
-* without restriction, including without limitation the rights to use, copy, modify, 
-* merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-* permit persons to whom the Software is furnished to do so, subject to the following 
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this
+* software and associated documentation files (the "Software"), to deal in the Software
+* without restriction, including without limitation the rights to use, copy, modify,
+* merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to the following
 * conditions:
 *
-* The above copyright notice and this permission notice shall be 
+* The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-* OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+* OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 'use strict';
+
+var PORT = process.env.PORT || 8888;
+// var ADDR = 'localhost'
+var ADDR = '10.8.253.43'
 
 /**
  * Module dependencies.
@@ -43,13 +47,13 @@ var app = express();
 
 var config = {
   // required options
-  identityMetadata: 'https://login.windows.net/GraphDir1.OnMicrosoft.com/federationmetadata/2007-06/federationmetadata.xml',
-  loginCallback: 'http://localhost:3000/login/callback/',
-  issuer: 'http://localhost:3000',  // this is the URI you entered for APP ID URI when configuring SSO for you app on Azure AAD
+  identityMetadata: 'https://login.microsoftonline.com/708d804c-70c3-4fcc-b711-b028a46d670c/federationmetadata/2007-06/federationmetadata.xml',
+  loginCallback: 'http://' + ADDR + ':' + PORT + '/login/callback/',
+  issuer: 'http://' + ADDR + ':' + PORT + '',  // this is the URI you entered for APP ID URI when configuring SSO for you app on Azure AAD
 
   // optional, but required to support SAML logout
-  appUrl: 'http://localhost:3000',
-  logoutCallback: 'http://localhost:3000/logout/callback/',
+  appUrl: 'http://' + ADDR + ':' + PORT + '',
+  logoutCallback: 'http://' + ADDR + ':' + PORT + '/logout/callback/',
   privateCert: fs.readFileSync('./private.pem', 'utf-8'),
   publicCert: fs.readFileSync('./public.pem', 'utf-8'),
 
@@ -59,7 +63,7 @@ var config = {
   contactEmail: 'admin@example.com',
   organizationName: 'Examples, Inc',
   organizationDisplayName: 'Examples, Inc',
-  organizationUrl: 'http://localhost:3000'
+  organizationUrl: 'http://' + ADDR + ':' + PORT + ''
 };
 
 // array to hold logged in users
@@ -104,7 +108,7 @@ app.engine('ejs', engine);
 
 // configure Express
 app.configure(function() {
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', PORT);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(express.favicon());

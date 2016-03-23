@@ -3,21 +3,21 @@
  *  All Rights Reserved
  *  MIT License
  *
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-* software and associated documentation files (the "Software"), to deal in the Software 
-* without restriction, including without limitation the rights to use, copy, modify, 
-* merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-* permit persons to whom the Software is furnished to do so, subject to the following 
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this
+* software and associated documentation files (the "Software"), to deal in the Software
+* without restriction, including without limitation the rights to use, copy, modify,
+* merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to the following
 * conditions:
 *
-* The above copyright notice and this permission notice shall be 
+* The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-* OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+* OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
@@ -61,7 +61,7 @@ var log = bunyan.createLogger({
             stream: process.stderr,
             level: "error",
             name: "error"
-        }, 
+        },
         {
             stream: process.stdout,
             level: "warn",
@@ -74,7 +74,7 @@ var log = bunyan.createLogger({
 
 // MongoDB setup
 // Setup some configuration
-var serverPort = process.env.PORT || 8080;
+var serverPort = process.env.PORT || 8888;
 var serverURI = (process.env.PORT) ? config.creds.mongoose_auth_mongohq : config.creds.mongoose_auth_local;
 
 // Connect to MongoDB
@@ -338,6 +338,19 @@ var findById = function(id, fn) {
     return fn(null, null);
 };
 
+// var AzureAdOAuth2Strategy = require('passport-azure-ad-oauth2');
+// passport.use(new AzureAdOAuth2Strategy({
+//
+//   clientID: '0ad12487-2249-424e-900b-a530e3f34ab1',
+//   // clientID: '708d804c-70c3-4fcc-b711-b028a46d670c',
+//   clientSecret: 'WFOWbx8dJzvEsjHQlN2Rkr07F0C8rGeZ+5hamcTyBYA=',
+//   callbackURL: 'http://localhost:8888/auth/azureadoauth2/callback',
+//   tenant: 'jordankledcortest.onmicrosoft.com',
+//   prompt: 'login'
+// }, function (accessToken, refreshToken, params, profile, done) {
+//   log.info('recieved', accessToken, refreshToken, params, profile);
+//
+// }));
 
 var bearerStrategy = new BearerStrategy(options,
     function(token, done) {
@@ -375,36 +388,16 @@ passport.use(bearerStrategy);
 /*
 **/
 
-server.get('/tasks', passport.authenticate('oauth-bearer', {
-    session: false
-}), listTasks);
-server.get('/tasks', passport.authenticate('oauth-bearer', {
-    session: false
-}), listTasks);
-server.get('/tasks/:owner', passport.authenticate('oauth-bearer', {
-    session: false
-}), getTask);
-server.head('/tasks/:owner', passport.authenticate('oauth-bearer', {
-    session: false
-}), getTask);
-server.post('/tasks/:owner/:task', passport.authenticate('oauth-bearer', {
-    session: false
-}), createTask);
-server.post('/tasks', passport.authenticate('oauth-bearer', {
-    session: false
-}), createTask);
-server.del('/tasks/:owner/:task', passport.authenticate('oauth-bearer', {
-    session: false
-}), removeTask);
-server.del('/tasks/:owner', passport.authenticate('oauth-bearer', {
-    session: false
-}), removeTask);
-server.del('/tasks', passport.authenticate('oauth-bearer', {
-    session: false
-}), removeTask);
-server.del('/tasks', passport.authenticate('oauth-bearer', {
-    session: false
-}), removeAll, function respond(req, res, next) {
+server.get('/tasks', passport.authenticate('oauth-bearer', {}), listTasks);
+server.get('/tasks', passport.authenticate('oauth-bearer', {}), listTasks);
+server.get('/tasks/:owner', passport.authenticate('oauth-bearer', {}), getTask);
+server.head('/tasks/:owner', passport.authenticate('oauth-bearer', {}), getTask);
+server.post('/tasks/:owner/:task', passport.authenticate('oauth-bearer', {}), createTask);
+server.post('/tasks', passport.authenticate('oauth-bearer', {}), createTask);
+server.del('/tasks/:owner/:task', passport.authenticate('oauth-bearer', {}), removeTask);
+server.del('/tasks/:owner', passport.authenticate('oauth-bearer', {}), removeTask);
+server.del('/tasks', passport.authenticate('oauth-bearer', {}), removeTask);
+server.del('/tasks', passport.authenticate('oauth-bearer', {}), removeAll, function respond(req, res, next) {
     res.send(204);
     next();
 });
@@ -426,6 +419,33 @@ server.get('/', function root(req, res, next) {
     next();
 });
 
+server.get('/login',
+  passport.authenticate('azure_ad_oauth2', { failureRedirect: '/login' }),
+  function(req, res) {
+    log.info('Login was called in the Sample');
+    res.redirect('/');
+  }
+);
+
+server.get('/auth/azureadoauth2', passport.authenticate('azure_ad_oauth2'));
+
+// POST /auth/openid/return
+//   Use passport.authenticate() as route middleware to authenticate the
+//   request.  If authentication fails, the user will be redirected back to the
+//   login page.  Otherwise, the primary route function function will be called,
+//   which, in this example, will redirect the user to the home page.
+server.get('/auth/azureadoauth2/callback',
+  passport.authenticate('azure_ad_oauth2', { failureRedirect: '/login' }),
+  function(req, res) {
+
+    res.redirect('/');
+  }
+);
+
+server.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
 
 server.listen(serverPort, function() {
 
