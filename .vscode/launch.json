@@ -5,7 +5,7 @@
 			"name": "Launch",
 			"type": "node",
 			"request": "launch",
-			"program": "${workspaceRoot}/examples/login-oidc-b2c/app.js",
+			"program": "${workspaceRoot}/example/index.js",
 			"stopOnEntry": false,
 			"args": [],
 			"cwd": "${workspaceRoot}",
@@ -17,9 +17,9 @@
 			"env": {
 				"NODE_ENV": "development"
 			},
-			"externalConsole": false,
+			"console": "internalConsole",
 			"sourceMaps": false,
-			"outDir": null
+			"outFiles": []
 		},
 		{
 			"name": "Attach",
