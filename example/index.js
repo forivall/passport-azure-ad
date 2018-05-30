@@ -7,6 +7,12 @@ const expressSession = require('express-session')
 const cookieParser = require('cookie-parser')
 const {OIDCStrategy} = require('..')
 
+const log = require('bunyan').createLogger({
+  name: 'Example Azure AD App',
+  level: 'info',
+  stream: process.stdout
+})
+
 var users = [];
 
 var findByOid = function(oid, fn) {
@@ -45,7 +51,6 @@ passport.use(new OIDCStrategy(Object.assign({
   if (!profile.oid) {
     return done(new Error("No oid found"), null);
   }
-  console.log(accessToken, refreshToken)
   findByOid(profile.oid, function(err, user) {
     if (err) {
       return done(err);
@@ -90,8 +95,6 @@ app.use(expressSession({secret: 'bearded dragon', resave: true, saveUninitialize
 app.use(passport.initialize())
 app.use(passport.session())
 app.get('/', (req, res) => {
-  console.log('user:', req.user)
-
   let html = page
 
   if (req.user) {
@@ -115,16 +118,9 @@ app.get('/', (req, res) => {
   res.status(200).type('html').send(html)
 })
 const doAuth = [
-  (req, res, next) => {
-    console.log('doing auth')
-    if (req.body && req.body.id_token) {
-      console.log('JWT:', req.body.id_token)
-    }
-    next()
-  },
   passport.authenticate('azuread-openidconnect', {failureRedirect: '/'}),
   (req, res) => {
-    console.log('logged in!')
+    log.info('logged in!')
     res.redirect('/')
   }
 ]

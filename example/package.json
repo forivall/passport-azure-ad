@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./index.js",
+    "start": "node ./index.js | bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,9 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "bunyan": "^1.8.12",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "he": "^1.1.1"
-  }
+  },
+  "devDependencies": {}
 }
